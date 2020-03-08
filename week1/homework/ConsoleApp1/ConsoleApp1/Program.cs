@@ -8,8 +8,9 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             //Ex1();
-           //Ex2();
-           Ex3();
+            //Ex2();
+            //Ex3();
+            Ex4();
         }
 
         public static void Ex1()
@@ -90,6 +91,23 @@ namespace ConsoleApp1
             foreach (KeyValuePair<char, int> item in occurences)
             {
                 Console.WriteLine("{0} => {1} occurences.", item.Key, item.Value);
+            }
+        }
+
+        public static void Ex4()
+        {
+            string[] words = { "the", "fox", "jumps", "over", "the", "dog" };
+            LinkedList<string> sentence = new LinkedList<string>(words);
+            Ex4Rec(sentence);
+        }
+
+        public static void Ex4Rec(LinkedList<string> sentence)
+        {
+            Console.WriteLine(sentence.Last.Value);
+            sentence.RemoveLast();
+            if (sentence.Count > 0)
+            {
+                Ex4Rec(sentence);
             }
         }
     }

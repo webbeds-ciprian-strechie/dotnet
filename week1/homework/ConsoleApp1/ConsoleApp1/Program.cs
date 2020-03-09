@@ -10,7 +10,8 @@ namespace ConsoleApp1
             //Ex1();
             //Ex2();
             //Ex3();
-            Ex4();
+            //Ex4();
+            Ex5();
         }
 
         public static void Ex1()
@@ -108,6 +109,47 @@ namespace ConsoleApp1
             if (sentence.Count > 0)
             {
                 Ex4Rec(sentence);
+            }
+        }
+
+        public static void Ex5()
+        {
+            Console.WriteLine("Input a string:");
+            char[] input = Console.ReadLine().ToCharArray();
+            if (input.Length == 0)
+            {
+                Console.WriteLine("Invalid data!");
+                return;
+            }
+            LinkedList<char> word = new LinkedList<char>(input);
+            LinkedListNode<char> next;
+            LinkedListNode<char> current = word.First;
+            LinkedListNode<char> node;
+
+            while (current != null)
+            {
+                node = current.Next;
+                while (node != null)
+                {
+                    if (node.Value == current.Value)
+                    {
+                        next = node.Next;
+                        word.Remove(node);
+                        node = next;
+                    }
+                    else
+                    {
+                        node = node.Next;
+                    }
+                }
+
+                current = current.Next;
+            }
+
+            Console.WriteLine("String without duplicates:");
+            foreach (char chr in word)
+            {
+                Console.Write((char)chr + " ");
             }
         }
     }

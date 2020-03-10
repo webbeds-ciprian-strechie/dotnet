@@ -11,7 +11,8 @@ namespace ConsoleApp1
             //Ex2();
             //Ex3();
             //Ex4();
-            Ex5();
+            //Ex5();
+            Ex6();
         }
 
         public static void Ex1()
@@ -151,6 +152,19 @@ namespace ConsoleApp1
             {
                 Console.Write((char)chr + " ");
             }
+        }
+
+        public static void Ex6()
+        {
+            Console.WriteLine("Input a string:");
+            string input = Console.ReadLine();
+            int lastSpace = input.LastIndexOf(' ');
+            if (lastSpace == -1)
+            {
+                Console.WriteLine("No space found");
+            }
+            int cnt = input.Substring(lastSpace + 1).Length;
+            Console.Write(cnt);
         }
     }
 

@@ -12,7 +12,7 @@ namespace ConsoleApp1
             //Ex3();
             //Ex4();
             //Ex5();
-            Ex6();
+            //Ex6();
         }
 
         public static void Ex1()
@@ -166,6 +166,155 @@ namespace ConsoleApp1
             int cnt = input.Substring(lastSpace + 1).Length;
             Console.Write(cnt);
         }
-    }
 
+        /*
+         * Arrays
+         */
+        public static void Ex72()
+        {
+            string[] input = new string[0];
+
+            string[] names = new string[1];
+            names[0] = "Han Solo";
+            Console.WriteLine(names[0]);
+
+            int[] numbers = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            foreach (int number in numbers)
+            {
+                Console.WriteLine(number);
+            }
+        }
+
+        /*
+         * Lists
+         */
+        public static void Ex73()
+        {
+            List<string> characters = new List<string>();
+            characters.Add("Chewbacca");
+            Console.WriteLine(characters[0]);
+
+            characters = new List<string>()
+            {
+                "Luke Skywalker",
+                "Han Solo",
+                "Chewbacca"
+            };
+            characters.Remove("Luke Skywalker");
+
+            characters = new List<string>()
+            {
+                "Luke Skywalker",
+                "Han Solo",
+                "Chewbacca"
+            };
+
+            characters.RemoveAt(2);
+
+            foreach (string str in characters)
+            {
+                Console.WriteLine(str);
+            }
+        }
+
+        /*
+         * Dictionaries
+         */
+        public static void Ex74()
+        {
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+
+            Dictionary<string, int> people = new Dictionary<string, int>();
+
+            people.Add("Ciprian", 34);
+            people["Mihai"] = 28;
+            Console.WriteLine(people["Ciprian"]);
+
+            Dictionary<string, bool> characters = new Dictionary<string, bool>()
+            {
+                { "Luke", true },
+                { "Han", false },
+                { "Chewbacca", false }
+            };
+
+            characters.Remove("Han");
+
+            characters = new Dictionary<string, bool>()
+            {
+                { "Luke", true },
+                { "Han", false },
+                { "Chewbacca", false }
+            };
+
+            foreach (var chr in characters)
+            {
+                Console.WriteLine(chr.Value);
+            }
+        }
+
+        /*
+         * Collections
+         */
+        public static void Ex75()
+        {
+            Queue<int> primes = new Queue<int>();
+            primes.Enqueue(1);
+            primes.Enqueue(3);
+            primes.Enqueue(5);
+            primes.Enqueue(7);
+            primes.Enqueue(9);
+
+            int total = 0;
+
+            foreach (int p in primes)
+            {
+                total += p;
+            }
+
+            Console.WriteLine(total);
+        }
+
+        /*
+         * Stacks
+         */
+        public static void Ex76()
+        {
+            Stack<string> films = new Stack<string>();
+            films.Push("Film 1");
+            films.Push("Film 2");
+            films.Push("Film 3");
+
+            do
+            {
+                Console.WriteLine(films.Pop());
+            }
+            while (films.Count > 0);
+        }
+
+        /*
+         * 
+         */
+        public static void Ex77()
+        {
+            LinkedList<string> movies = new LinkedList<string>();
+            movies.AddFirst("Avatar");
+            LinkedListNode<string> titanic = new LinkedListNode<string>("Titanic");
+            movies.AddLast(titanic);
+            movies.AddAfter(titanic, new LinkedListNode<string>("Star Wars: The Force Awakens"));
+
+            LinkedList<string> droids = new LinkedList<string>();
+
+            droids.AddLast("C-3PO");
+            droids.AddLast("AZI-3");
+            droids.AddLast("R2-D2");
+            droids.AddLast("IG-88");
+            droids.AddLast("2-1B");
+
+            droids.Remove("C-3PO");
+            droids.Remove("R2-D2");
+            droids.RemoveLast();
+        }
+
+
+    }
 }

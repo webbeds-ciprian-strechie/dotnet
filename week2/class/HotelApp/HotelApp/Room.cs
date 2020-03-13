@@ -21,7 +21,7 @@ namespace HotelApp
             return rate.Amount * numberOfDays;
         }
 
-        public decimal getRateAmount()
+        public decimal GetRateAmount()
         {
             return this.Rate.Amount;
         }

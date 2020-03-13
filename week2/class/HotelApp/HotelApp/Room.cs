@@ -20,6 +20,12 @@ namespace HotelApp
         {
             return rate.Amount * numberOfDays;
         }
+
+        public decimal getRateAmount()
+        {
+            return this.Rate.Amount;
+        }
+
         public void Print()
         {
             Console.WriteLine("Room Name: {0}", this.Name);

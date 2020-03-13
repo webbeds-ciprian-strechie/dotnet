@@ -23,7 +23,7 @@ namespace HotelApp
             }
             for(int i =0; i< numberOfRooms; i++)
             {
-                price += Rooms[i].Rate.Amount;
+                price += Rooms[i].getRateAmount();
             }
 
             return price;

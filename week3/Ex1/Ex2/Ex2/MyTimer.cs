@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
-delegate void Displayer(int n);
+
 
 namespace Ex2
 {
@@ -14,9 +14,7 @@ namespace Ex2
         private static bool status = true;
 
         public static void InitTimer(int seconds)
-        {
-            Displayer d = new Displayer(Display);
-            
+        {          
             long startTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             long current;
 
@@ -28,17 +26,10 @@ namespace Ex2
                 current = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 if (current - startTime >= seconds)
                 {
-                    d(seconds);
+                    Console.WriteLine("Elipsed {0} sec", seconds);
                     startTime = current;
                 }
             }
         }
-
-
-        private static void Display(int n)
-        {
-            Console.WriteLine("Elipsed {0} sec", n);
-        }
-
     }
 }

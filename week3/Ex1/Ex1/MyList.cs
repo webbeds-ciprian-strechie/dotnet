@@ -80,6 +80,7 @@ namespace Ex1
                 if (i == index)
                 {
                     tmp[tmp.Length] = value;
+                    tmp[tmp.Length] = data[i];
                 }
                 else
                 {
@@ -89,8 +90,6 @@ namespace Ex1
             }
 
             data = tmp;
-
-
         }
 
 

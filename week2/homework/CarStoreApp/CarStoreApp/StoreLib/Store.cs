@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CarStoreApp.LoggerLib;
 using CarStoreApp.PersonLib;
 using CarStoreApp.ProducerLib;
 using CarStoreApp.StoreLib.OrderLib;
@@ -15,18 +16,26 @@ namespace CarStoreApp.StoreLib
 
         private IProducer producer;
 
+        private ILogger logger;
+
         public string Name { get; set; }
         public string City { get; set; }
 
-        public Store(IProducer producer)
+        public Store(IProducer producer, ILogger logger)
         {
             this.producer = producer;
+            this.logger = logger;
             orders = new List<IOrder>();
         }
 
         public IVehicle? getCarByDetails(string name, string model, int year)
         {
-            return this.producer.getCarByDetails(name, model, year);
+            IVehicle car =  this.producer.getCarByDetails(name, model, year);
+            if (car == null)
+            {
+                logger.Log($"{this.Name} - No results were founf for Car details: {name} {model} {year}");
+            }
+            return car;
         }
 
         public string getDeliveryTime()
@@ -37,7 +46,7 @@ namespace CarStoreApp.StoreLib
         {
             if (!orders.Exists((elem) => elem.Person.Name == p.Name && elem.Car.VIN == v.VIN && elem.Status == ORDER_STATUS.CONFIRMED))
             {
-                Console.WriteLine("Created a  new order for {0} price= {1} deliver time = {2}", p.Name, price, deliverTime);
+                logger.Log($"{this.Name} - Created a  new CONFIRMED order for {p.Name} with price = {price} EUR and deliver time = {deliverTime} -- Car details: {v.Name} {v.Model} {v.Year}");
 
                 orders.Add(new Order()
                 {
@@ -52,7 +61,7 @@ namespace CarStoreApp.StoreLib
             }
             else
             {
-                Console.WriteLine("An order with same details already exits!");
+                logger.Log($"{this.Name} - An order with same details already exits!");
             }
         }
 
@@ -62,11 +71,11 @@ namespace CarStoreApp.StoreLib
             if (order != null)
             {
                 order.Status = ORDER_STATUS.CANCELLED;
-                Console.WriteLine("Canceled order for {0} - Car details: {1} {2} {3}", p.Name, v.Name, v.Model, v.Year);
+                logger.Log($"{this.Name} - Canceled order for {p.Name} - Car details: {v.Name} {v.Model} {v.Year}");
             }
             else
             {
-                Console.WriteLine("No order was found with specified details");
+                logger.Log($"{this.Name} - No order was found with specified details");
             }
 
         }
@@ -77,18 +86,18 @@ namespace CarStoreApp.StoreLib
             if (order != null)
             {
                 order.Status = ORDER_STATUS.DONE;
-                Console.WriteLine(" Order is DONE for {0} - Car details: {1} {2} {3}", p.Name, v.Name, v.Model, v.Year);
+                logger.Log($"{this.Name} - Order is DONE for {p.Name} - Car details: {v.Name} {v.Model} {v.Year}");
             }
             else
             {
-                Console.WriteLine("No order was found with specified details");
+                logger.Log($"{this.Name} - No order was found with specified details");
             }
         }
 
         public void receiveCar(IPerson p, IVehicle v)
         {
-            Console.WriteLine("Car received!");
             this.producer.deliver(v);
+            logger.Log($"{this.Name} - Car received!");
             this.finishOrder(p, v);
         }
     }

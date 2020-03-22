@@ -3,6 +3,7 @@ using CarStoreApp.PersonLib;
 using CarStoreApp.StoreLib;
 using CarStoreApp.ProducerLib;
 using CarStoreApp.VehicleLib;
+using CarStoreApp.LoggerLib;
 
 namespace CarStoreApp
 {
@@ -15,7 +16,7 @@ namespace CarStoreApp
                 Name = "Alex"
             };
 
-            Store storeFord = new Store(new FordProducer())
+            Store storeFord = new Store(new FordProducer(), new FileLogger())
             {
                 Name = "FordStore",
                 City = "Bucuresti"
@@ -30,7 +31,7 @@ namespace CarStoreApp
             }
             
 
-            Store storeSkoda = new Store(new SkodaProducer())
+            Store storeSkoda = new Store(new SkodaProducer(), new FileLogger())
             {
                 Name = "SkodaStore",
                 City = "Bucuresti"
@@ -43,9 +44,15 @@ namespace CarStoreApp
                 storeSkoda.addNewOrder(p, carSkoda, 1400, deliverTime);
             }
 
-            storeFord.cancelOrder(p, carFord);
+            if (carFord != null)
+            {
+                storeFord.cancelOrder(p, carFord);
+            }
 
-            storeSkoda.receiveCar(p, carSkoda);
+            if (carSkoda != null)
+            {
+                storeSkoda.receiveCar(p, carSkoda);
+            }
         }
     }
 }

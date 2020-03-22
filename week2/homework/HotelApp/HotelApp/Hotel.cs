@@ -28,6 +28,28 @@ namespace HotelApp
 
             return price;
         }
+
+        public void GetRoomWithLowestPrice(int price)
+        {
+            Room? cheepRoom = null;
+            foreach (Room r in rooms)
+            {
+                if (r.GetRateAmount() < price)
+                {
+                    cheepRoom = r;
+                }
+            }
+
+            if (cheepRoom != null)
+            {
+                Console.WriteLine("Room with a price lower than {0}:", price);
+                cheepRoom.Print();
+            }
+            else
+            {
+                Console.WriteLine("NO room with a price lower than {0} was found.", price);
+            }
+        }
         public void Print()
         {
             Console.WriteLine("Hotel Name: {0}", this.Name);

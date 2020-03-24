@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ex1
 {
-    class MyList<T> : ICollection, IEnumerable,  IStructuralComparable, IStructuralEquatable, ICloneable
+    class MyList<T> : ICollection, IEnumerable, IStructuralComparable, IStructuralEquatable, ICloneable
     {
         private T[] data;
 

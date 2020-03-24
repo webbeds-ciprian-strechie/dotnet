@@ -8,13 +8,13 @@ using System.Timers;
 
 namespace Ex2
 {
-    
+
     class MyTimer
     {
-        private static bool status = true;
+        public delegate void Displayer(int n);
 
         public static void InitTimer(int seconds)
-        {          
+        {
             long startTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             long current;
 

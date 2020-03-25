@@ -6,7 +6,7 @@ namespace Ex6
     {
         static void Main(string[] args)
         {
-            BitArray64 simpleBitArray = new BitArray64(11); //1101
+            BitArray64 simpleBitArray = new BitArray64(11); //1011
 
             Console.WriteLine(simpleBitArray[2] == simpleBitArray[3]); //false
             Console.WriteLine("BitArray:");
@@ -17,7 +17,8 @@ namespace Ex6
 
             simpleBitArray[2] = 1;
 
-            Console.WriteLine(simpleBitArray[2] == simpleBitArray[3]); //true
+            Console.WriteLine("");
+           Console.WriteLine(simpleBitArray[2] == simpleBitArray[3]); //true
             Console.WriteLine("BitArray:");
             foreach (var value in simpleBitArray)
             {

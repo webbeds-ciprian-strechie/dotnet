@@ -7,12 +7,12 @@ namespace Ex6
 {
     class BitArray64 : IEnumerable<int>
     {
-        private ulong value;
+        private ulong val;
 
         //Constructor
         public BitArray64(ulong number)
         {
-            this.value = number;
+            this.val = number;
         }
 
         // Indexer declaration
@@ -23,7 +23,7 @@ namespace Ex6
                 if (index >= 0 && index <= 63)
                 {
                     // Check the bit at position index
-                    if ((value & (ulong)(1 << index)) == 0)
+                    if ((val & (1ul << index)) == 0)
                         return 0;
                     else
                         return 1;
@@ -42,10 +42,11 @@ namespace Ex6
                 if (value < 0 || value > 1)
                     throw new ArgumentException(
                        String.Format("Value {0} is invalid!", value));
+
                 // Clear the bit at position index
-                value &= ~((1 << index));
+                val &= ~((ulong)(1 << index));
                 // Set the bit at position index to value
-                value |= (value << index);
+                val |= (ulong)(value << index);
             }
         }
 
@@ -71,12 +72,12 @@ namespace Ex6
 
             BitArray64 objAsBitArray64 = obj as BitArray64;
 
-            return this.value == objAsBitArray64.value;
+            return this.val == objAsBitArray64.val;
         }
 
         public override int GetHashCode()
         {
-            return this.value.GetHashCode();
+            return this.val.GetHashCode();
         }
 
         // Operators

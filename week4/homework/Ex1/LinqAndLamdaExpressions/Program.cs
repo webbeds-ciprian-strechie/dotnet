@@ -133,7 +133,7 @@
             // 12 - order users by number of posts
             Console.WriteLine("\t 12 - order users by number of posts: ");
             var postsCounter12 = allPosts.GroupBy(post => post.UserId)
-              .Select(counter => new { UserId = counter.Key, Counter = counter.Count() }).ToDictionary(grp=>grp.UserId, grp => grp.Counter);
+              .Select(counter => new { UserId = counter.Key, Counter = counter.Count() }).ToDictionary(grp => grp.UserId, grp => grp.Counter);
 
             IEnumerable<User> myUsers12 = allUsers.OrderBy(user => postsCounter12[user.Id]);
             foreach (var user in myUsers12)

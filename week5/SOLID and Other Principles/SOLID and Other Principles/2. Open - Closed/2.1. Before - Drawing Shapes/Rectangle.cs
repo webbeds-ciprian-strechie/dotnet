@@ -2,11 +2,7 @@
 {
     using OpenClosedDrawingShapesBefore.Contracts;
 
-    public class Circle : IShape
+    public class Rectangle : IShape
     {
-        public void Draw()
-        {
-            // Draw Circle
-        }
     }
 }

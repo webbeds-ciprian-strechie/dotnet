@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FileWatcher
+namespace FileWatcherTasks
 {
     class Program
     {
@@ -20,7 +20,8 @@ namespace FileWatcher
         private static CancellationToken watcherToken;
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("File Watcher Tasks!");
+
             _lock = new object();
             tokenSource = new CancellationTokenSource();
             watcherToken = tokenSource.Token;
@@ -65,8 +66,6 @@ namespace FileWatcher
                 int index = Task.WaitAny(consumers.ToArray());
                 consumers.RemoveAt(index);
             }
-
-            String[] data = { e.Name, e.FullPath };
 
             var task = Task.Factory.StartNew(() =>
             {

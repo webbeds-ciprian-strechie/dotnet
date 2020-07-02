@@ -1,6 +1,8 @@
 ﻿namespace ConferencePlanner.App
 {
     using System;
+    using System.Collections.Generic;
+    using System.Data.Entity.Core.Objects;
     using System.Linq;
     using ConferencePlanner.Data.Entities;
     using Data;
@@ -15,8 +17,9 @@
             using var context = new ApplicationDbContext();
 
             //Ex01.Run(context);
-
-            Ex06.Run(context);
+            // Ex03.Run(context);
+            //Ex06.Run(context);
+            Ex07.Run(context);
         }
     }
 
@@ -61,6 +64,23 @@
             // on Attendee model, add a new property, date of birth
             // add a migration, run the migration
             // insert then read a Attendee
+
+            var atandee = context.Attendees.Add(new Attendee
+            {
+
+                FirstName = "Attendee24",
+                LastName = "Test",
+                UserName = "User24",
+                EmailAddress = "asdqwede@mail.com",
+                DateOfBirth = new DateTime(1990, 12, 12)
+            });
+            context.SaveChanges();
+
+            var atandeeFromDb = context.Attendees
+                    .Where(b => b.UserName == "User24")
+                    .First();
+
+            Console.WriteLine(atandeeFromDb.Id);
         }
     }
 
@@ -94,15 +114,48 @@
             // all Sessions that title contains ".NET"
             SessionRepository sr = new SessionRepository(context);
             var sessions = sr.GetByTitle(".NET");
-            foreach(Session session in sessions)
+            foreach (Session session in sessions)
             {
                 Console.WriteLine(session.Title + "[ID:" + session.Id + "]");
             }
+
             // number of sessions for each speaker
+            var query = context.SessionSpeaker.GroupBy(s => s.SpeakerId)
+                               .Select(e => new { e.Key, Count = e.Count() })
+                               .ToDictionary(e => e.Key, e => e.Count);
+            foreach (var sessionSpeaker in query)
+            {
+                Console.WriteLine("Speaker {0} = {1} sessions", sessionSpeaker.Key, sessionSpeaker.Value);
+            }
 
             // number of tracks per session
+            var query2 = context.Sessions.GroupBy(s => s.TrackId)
+                   .Select(e => new { e.Key, Count = e.Count() })
+                   .ToDictionary(e => e.Key, e => e.Count);
+            foreach (var sessionSpeaker in query2)
+            {
+                Console.WriteLine("Session {0} = {1} tracks", sessionSpeaker.Key, sessionSpeaker.Value);
+            }
 
             // all tracks for each session
+            DbSet<Session> sessions2 = context.Sessions;
+            DbSet<Track> traks = context.Tracks;
+
+            var query3 =
+                sessions2.Join(
+                    traks,
+                    session => session.TrackId,
+                    track => track.Id,
+                    (session, track) => new
+                    {
+                        SessionID = session.Id,
+                        TrackName = track.Name,
+                    });
+
+            foreach (var sessionTraks in query3)
+            {
+                Console.WriteLine("SessionID: {0}  TrackName: {1} ", sessionTraks.SessionID, sessionTraks.TrackName);
+            }
         }
     }
 
@@ -112,6 +165,15 @@
         {
             // todo
             // get all sessions for one speaker
+            var speakerId = 2;
+            var query = context.SessionSpeaker
+                .Where(s => s.SpeakerId == speakerId)
+                .Include(s => s.Session);
+
+            foreach (var sessionSpeaker in query)
+            {
+                Console.WriteLine(sessionSpeaker.Session.Title);
+            }
         }
     }
 

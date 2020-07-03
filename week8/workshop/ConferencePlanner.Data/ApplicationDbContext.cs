@@ -41,7 +41,6 @@
             // Ex1 - todo        
             modelBuilder.Entity<SessionSpeaker>()
                         .HasKey(ss => new { ss.SessionId, ss.SpeakerId });
-
             // Ex02 - Todo
             // on Tracks table, add PHP, C# tracks with a seed
             // update ApplicationDbContext to run a seed

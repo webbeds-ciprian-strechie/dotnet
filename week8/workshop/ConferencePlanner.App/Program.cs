@@ -166,11 +166,12 @@
             // todo
             // get all sessions for one speaker
             var speakerId = 2;
-            var query = context.SessionSpeaker
+
+            var query2 = context.SessionSpeaker
                 .Where(s => s.SpeakerId == speakerId)
                 .Include(s => s.Session);
 
-            foreach (var sessionSpeaker in query)
+            foreach (var sessionSpeaker in query2)
             {
                 Console.WriteLine(sessionSpeaker.Session.Title);
             }

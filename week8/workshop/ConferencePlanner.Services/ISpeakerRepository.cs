@@ -12,7 +12,7 @@
 
         IEnumerable<Session> GetAllSessions(int id);
 
-        int Save(Speaker speaker);
+        long Save(Speaker speaker);
     }
 
     public class SpeakerResponseModel

@@ -7,26 +7,67 @@ namespace _8.Custom_Linked_List_Tests
 {
     public class UnitTest1
     {
-        [Fact]
-        public void Test1()
+
+        DynamicList<int> target;
+
+        const int NR_ELEMENTS = 5;
+        public UnitTest1()
         {
-            Test1Generic<int>();  // step 6
+            target = new DynamicList<int>();
+            for (int i = 0; i < NR_ELEMENTS; i++)
+            {
+                target.Add(i);
+            }
         }
 
-        public void Test1Generic<T>()
+        [Fact]
+        public void TestIndexOf()
         {
-            T val = default(T);
+            var firstElement = 0;
+            Assert.Equal(firstElement, target.IndexOf(0));
+        }
 
-            DynamicList<T> target = new DynamicList<T>(); // step 1
-            for (int i = 0; i < 4; i++) // step 2
-            {
-                T newNode = val;
-                target.Add(newNode);
-            }
-            int expected = 5; // step 3
-            int actual;
-            actual = target.Count; // step 4
-            Assert.Equal(expected, actual); // step 5
+        [Fact]
+        public void TestAddOperation()
+        {
+            target.Add(99);
+            Assert.Equal(NR_ELEMENTS + 1, target.Count);
+        }
+
+        [Fact]
+        public void TestRemoveOperation()
+        {
+
+            target.Remove(0);
+
+            Assert.Equal(NR_ELEMENTS - 1, target.Count);
+
+            Assert.Equal(-1, target.IndexOf(0));
+        }
+
+        [Fact]
+        public void TestRemoveAtOperation()
+        {
+            target.RemoveAt(0);
+            Assert.Equal(NR_ELEMENTS - 1, target.Count);
+
+            Assert.Equal(-1, target.IndexOf(0));
+        }
+
+        [Fact]
+        public void TestContains()
+        {
+            var newElement = 99;
+            var elementNotContained = -99;
+            target.Add(newElement);
+            Assert.True(target.Contains(newElement));
+            Assert.False(target.Contains(elementNotContained));
+        }
+
+        [Fact]
+        public void TestIndex()
+        {
+            Assert.Equal(0, target[0]);
         }
     }
 }

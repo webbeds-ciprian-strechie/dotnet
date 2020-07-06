@@ -131,6 +131,9 @@ namespace xUnit.FullFramework.Mocks
              * Add verification that error logger was called
              *
              */
+
+            notificationServiceMock.Verify(x => x.SendEmail(bobMock.Object, It.IsAny<string>()), Times.Once);
+            notificationServiceMock.Verify(x => x.SendSlackMessage(bobMock.Object, It.IsAny<string>()), Times.Never);
         }
 
 

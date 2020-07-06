@@ -283,8 +283,7 @@
             //
             // Create instance of class I'm testing:
             //
-            var classUnderTest = new LunchNotifier(notificationServiceMock.Object, employeeServiceMock.Object,
-                loggerMock.Object);
+            var classUnderTest = new LunchNotifier(notificationServiceMock.Object, employeeServiceMock.Object, loggerMock.Object);
 
             //
             // Run some logic to test:

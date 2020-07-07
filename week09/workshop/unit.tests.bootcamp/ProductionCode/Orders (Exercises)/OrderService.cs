@@ -1,6 +1,7 @@
 ﻿namespace ProductionCode.Orders
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Models;
 
@@ -37,7 +38,8 @@
 
         public Payment PayInvoice(Order order, int invoiceId)
         {
-            var invoiceToPay = order.Invoices.First(inv => inv.InvoiceId == invoiceId);
+
+            var invoiceToPay = order.Invoices.FirstOrDefault(inv => inv.InvoiceId == invoiceId);
 
             if (invoiceToPay == null) throw new Exception("Invalid InvoiceId");
 
@@ -51,9 +53,9 @@
             };
 
 
-            if (payment.Amount != 0)
-                // Joe in Accounting said not to include $0 payments on the order
-                order.Payments.Add(payment);
+            //if (payment.Amount != 0)
+            // Joe in Accounting said not to include $0 payments on the order
+            order.Payments.Add(payment);
 
             return payment;
         }

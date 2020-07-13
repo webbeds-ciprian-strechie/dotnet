@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Course_management.Data.Entities
+namespace Course_management.Models
 {
-    public class Teacher
+    public class Student
     {
         public int Id { get; set; }
 
@@ -17,5 +17,13 @@ namespace Course_management.Data.Entities
         [Required]
         [StringLength(100)]
         public string LasttName { get; set; }
+
+        [Required]
+        [StringLength(13)]
+        public DateTime CNP { get; set; }
+
+        [Required]
+        public DateTime EnrollmentDate { get; set; }
+
     }
 }

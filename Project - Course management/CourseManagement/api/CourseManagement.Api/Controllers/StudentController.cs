@@ -48,10 +48,10 @@ namespace CourseManagement.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<StudentGetDto>> Get(int id)
+        public async Task<ActionResult<StudentGetDto>> Get(int id, CancellationToken cancellationToken)
         {
             this._logger.LogInformation("StudentController-Get(id) hit");
-
+            cancellationToken.ThrowIfCancellationRequested();
             var student = await _studentService.Get(id).ConfigureAwait(false);
             if (student == null)
             {
@@ -68,7 +68,7 @@ namespace CourseManagement.Api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<int>> Post(StudentCreateDto studentCreateDto, [FromHeader] string modifiedBy)
+        public async Task<ActionResult<int>> Post(StudentCreateDto studentCreateDto, [FromHeader] string modifiedBy, CancellationToken cancellationToken)
         {
             if (studentCreateDto == null)
             {
@@ -80,6 +80,8 @@ namespace CourseManagement.Api.Controllers
             {
                 return BadRequest();
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var student = studentCreateDto.MapToStudent(modifiedBy);
             var createdStudentGetDto = (await _studentService.Create(student).ConfigureAwait(false)).MapToStudentGetDto();
@@ -95,7 +97,7 @@ namespace CourseManagement.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
-        public async Task<ActionResult> Put(int id, StudentUpdateDto studentUpdateDto, [FromHeader] string modifiedBy, [FromHeader(Name = "if-match")][Required] string eTag)
+        public async Task<ActionResult> Put(int id, StudentUpdateDto studentUpdateDto, [FromHeader] string modifiedBy, [FromHeader(Name = "if-match")][Required] string eTag, CancellationToken cancellationToken)
         {
             if (id <= 0)
             {
@@ -123,6 +125,8 @@ namespace CourseManagement.Api.Controllers
                 return StatusCode(StatusCodes.Status412PreconditionFailed, "Invalid Etag");
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             var existingStudentByCnp = await _studentService.GetByCNP(studentUpdateDto.CNP).ConfigureAwait(false);
             if (existingStudentByCnp != null && existingStudentByCnp.Id != id)
             {
@@ -148,13 +152,16 @@ namespace CourseManagement.Api.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<Student>> Delete(int id)
+        public async Task<ActionResult<Student>> Delete(int id, CancellationToken cancellationToken)
         {
             var student = await _studentService.Get(id).ConfigureAwait(false);
             if (student == null)
             {
                 return NotFound("Invalid Student id!");
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             await _studentService.Delete(id).ConfigureAwait(false);
 
             var result = student.MapToStudentGetDto();

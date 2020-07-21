@@ -1,30 +1,51 @@
-﻿using CourseManagement.Domain.Entities;
+﻿using CourseManagement.Domain.DataAccess;
+using CourseManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CourseManagement.Application.Services
 {
     public class TeacherService : ITeacherService
     {
-        public Task<Department> Create(Teacher teacher)
+        private readonly ITeacherRepository _teacherRepository;
+
+
+        public TeacherService(ITeacherRepository teacherRepository)
         {
-            throw new NotImplementedException();
+            _teacherRepository = teacherRepository;
+        }
+
+        public async Task<Teacher> Create(Teacher teacher)
+        {
+            var newChannel = await _teacherRepository.Create(teacher);
+
+            return newChannel;
         }
 
         public Task<Teacher> Get(int id)
         {
-            throw new NotImplementedException();
+            return _teacherRepository.Get(id);
         }
 
-        public Task<IEnumerable<Teacher>> GetList()
+        public Task<Teacher> GetByName(string name)
         {
-            throw new NotImplementedException();
+            return _teacherRepository.GetByName(name);
+        }
+
+        public Task<IEnumerable<Teacher>> GetList(CancellationToken cancellationToken)
+        {
+            return _teacherRepository.GetList(cancellationToken);
         }
 
         public Task<int> Update(Teacher teacher)
         {
-            throw new NotImplementedException();
+            return _teacherRepository.Update(teacher);
+        }
+        public Task<bool> Delete(int id)
+        {
+            return _teacherRepository.Delete(id);
         }
     }
 }

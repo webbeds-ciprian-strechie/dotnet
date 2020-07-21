@@ -1,28 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using CourseManagement.Api.Middleware;
 using CourseManagement.Api.ServiceExtensions;
+using CourseManagement.Application.Services;
 using CourseManagement.Domain.DataAccess;
+using CourseManagement.Domain.Helpers;
 using CourseManagement.Infrastructure;
 using CourseManagement.Infrastructure.DataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.Swagger;
 
 namespace CourseManagement.Api
 {
@@ -42,6 +34,7 @@ namespace CourseManagement.Api
 
             services.AddSingleton<IConnectionFactory>(new SqlConnectionFactory(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddCors();
             services.AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
                 .AddNewtonsoftJson();
@@ -50,38 +43,53 @@ namespace CourseManagement.Api
             services.AddServices()
                     .AddRepositories();
 
-            // Add Swagger
-            /*            services.AddSwaggerGen(c =>
+            //Configure Swagger
+            services.AddSwaggerGen(c => {
+                c.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
                         {
-                            c.SwaggerDoc("v1", new OpenApiInfo
-                            {
-                                Title = "My API",
-                                Version = "v1"
-                            });
-                        });*/
-            // Register the Swagger generator, defining 1 or more Swagger documents
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearerAuth" }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
 
-            /*            services.AddResponseCaching();
+            // configure jwt authentication
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
-                        services.AddMemoryCache();
-
-                        var key = Encoding.ASCII.GetBytes("encryptionkeyencryptionkeyencryptionkeyencryptionkey");
-                        services.AddAuthentication(x =>
-                        {
-                            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                        }).AddJwtBearer(x =>
-                        {
-                            x.RequireHttpsMetadata = false;
-                            x.SaveToken = true;
-                            x.TokenValidationParameters = new TokenValidationParameters
-                            {
-                                ValidateIssuerSigningKey = true,
-                                IssuerSigningKey = new SymmetricSecurityKey(key),
-                                ValidateIssuer = false,
-                                ValidateAudience = false
-                            };
-                        });*/
+            // configure DI for application services
+            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -89,7 +97,7 @@ namespace CourseManagement.Api
         {
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hotels API V1"); });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("./v1/swagger.json", "Hotels API V1"); });
 
             if (env.IsDevelopment())
             {
@@ -97,6 +105,12 @@ namespace CourseManagement.Api
             }
 
             app.UseRouting();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseMiddleware<RequestLoggerMiddleware>();
 

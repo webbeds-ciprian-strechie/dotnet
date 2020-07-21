@@ -1,40 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CourseManagement.Application.Services;
+using CourseManagement.Domain.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.Api.Controllers
 {
-    [Route("api/auth")]
+    [Authorize]
     [ApiController]
-    public class AuthController : ControllerBase
+    [Route("[controller]")]
+    public class UsersController : ControllerBase
     {
-        [HttpGet("")]
-        public async Task<ActionResult<string>> Login()
+        private IUserService _userService;
+
+        public UsersController(IUserService userService)
         {
-            return CreateToken();
+            _userService = userService;
         }
-        private static ActionResult<string> CreateToken()
+
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] UserDto model)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("encryptionkeyencryptionkeyencryptionkeyencryptionkey");
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, "ciprian")
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(1),
-                SigningCredentials =
-                    new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var user = _userService.Authenticate(model.Username, model.Password);
+
+            if (user == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            return Ok(user);
+        }
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var users = _userService.GetAll();
+            return Ok(users);
         }
     }
 }

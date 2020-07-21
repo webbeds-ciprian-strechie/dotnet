@@ -27,4 +27,5 @@ namespace CourseManagement.Domain.Entities
         public virtual Course Course { get; set; }
         public virtual OfficeAssignment OfficeAssignment { get; set; }
     }
+
 }

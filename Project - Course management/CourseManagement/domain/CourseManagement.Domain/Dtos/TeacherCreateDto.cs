@@ -18,5 +18,9 @@ namespace CourseManagement.Domain.Dtos
         public string LastName { get; set; }
 
         public DateTime HireDate { get; set; }
+
+        public int CourseID { get; set; }
+
+        public string ModifiedBy { get; set; }
     }
 }

@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using CourseManagement.Domain.Entities;
 using CourseManagement.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using CourseManagement.Infrastructure.Extensions;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CourseManagement.Api.Controllers
 {
@@ -17,10 +21,11 @@ namespace CourseManagement.Api.Controllers
     public class OfficeAssignmentsController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
-        public OfficeAssignmentsController(ApiDbContext context)
+        private readonly IMemoryCache memoryCache;
+        public OfficeAssignmentsController(ApiDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            this.memoryCache = memoryCache;
         }
 
         // GET: api/OfficeAssignments
@@ -48,11 +53,16 @@ namespace CourseManagement.Api.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOfficeAssignment(int id, OfficeAssignment officeAssignment)
+        public async Task<IActionResult> PutOfficeAssignment(int id, OfficeAssignment officeAssignment, [FromHeader(Name = "if-match")][Required] string eTag, CancellationToken cancellationToken)
         {
             if (id != officeAssignment.TeacherID)
             {
                 return BadRequest();
+            }
+
+            if (eTag != officeAssignment.GetEtag())
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed, "Invalid Etag");
             }
 
             _context.Entry(officeAssignment).State = EntityState.Modified;
@@ -60,6 +70,9 @@ namespace CourseManagement.Api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var cts = new CancellationTokenSource();
+                this.memoryCache.Set($"_OS{officeAssignment.TeacherID}", cts);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -114,6 +127,9 @@ namespace CourseManagement.Api.Controllers
 
             _context.OfficeAssignments.Remove(officeAssignment);
             await _context.SaveChangesAsync();
+
+            var cts = this.memoryCache.Get<CancellationTokenSource>($"_OS{id}");
+            cts?.Cancel();
 
             return officeAssignment;
         }

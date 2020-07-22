@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using CourseManagement.Domain.Entities;
 using CourseManagement.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using CourseManagement.Infrastructure.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using CourseManagement.Domain.Dtos;
 
 namespace CourseManagement.Api.Controllers
 {
@@ -17,22 +22,25 @@ namespace CourseManagement.Api.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
-        public DepartmentsController(ApiDbContext context)
+        private readonly IMemoryCache memoryCache;
+        public DepartmentsController(ApiDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            this.memoryCache = memoryCache;
         }
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentCreateDto>>> GetDepartments()
         {
-            return await _context.Departments.ToListAsync();
+            var departments = await _context.Departments.ToListAsync();
+            var result = departments.Select(x => x.MapToDepartmentGetDto());
+            return Ok(result);
         }
 
         // GET: api/Departments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        public async Task<ActionResult<DepartmentCreateDto>> GetDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);
 
@@ -41,16 +49,14 @@ namespace CourseManagement.Api.Controllers
                 return NotFound();
             }
 
-            return department;
+            return department.MapToDepartmentGetDto();
         }
 
         // PUT: api/Departments/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartment(int id, Department department)
+        public async Task<IActionResult> PutDepartment(int id, DepartmentCreateDto department)
         {
-            if (id != department.Id)
+            if (id != department.DepartmentID)
             {
                 return BadRequest();
             }
@@ -60,6 +66,9 @@ namespace CourseManagement.Api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var cts = new CancellationTokenSource();
+                this.memoryCache.Set($"_DP{department.DepartmentID}", cts);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,20 +86,23 @@ namespace CourseManagement.Api.Controllers
         }
 
         // POST: api/Departments
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Department>> PostDepartment(Department department)
+        public async Task<ActionResult<DepartmentCreateDto>> PostDepartment(DepartmentCreateDto department, [FromHeader(Name = "if-match")][Required] string eTag, CancellationToken cancellationToken)
         {
-            _context.Departments.Add(department);
+            if (eTag != department.GetEtag())
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed, "Invalid Etag");
+            }
+
+            _context.Departments.Add(department.MapAsNewEntity());
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDepartment", new { id = department.Id }, department);
+            return CreatedAtAction("GetDepartment", new { id = department.DepartmentID }, department);
         }
 
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Department>> DeleteDepartment(int id)
+        public async Task<ActionResult<DepartmentCreateDto>> DeleteDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
@@ -101,7 +113,11 @@ namespace CourseManagement.Api.Controllers
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
 
-            return department;
+            var cts = this.memoryCache.Get<CancellationTokenSource>($"_DP{id}");
+            cts?.Cancel();
+
+            var result = department.MapToDepartmentGetDto();
+            return result;
         }
 
         private bool DepartmentExists(int id)

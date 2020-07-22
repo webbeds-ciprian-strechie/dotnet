@@ -6,9 +6,15 @@ using System.Text;
 
 namespace CourseManagement.Domain.Dtos
 {
-    public class EnrollmentCreateDto
+    public class EnrollmentCreateDto : IAuditable
     {
-        public int EnrollmentID { get; set; }
+        public int Id { get; set; }
+        public int CourseID { get; set; }
+        public int StudentID { get; set; }
         public Grade? Grade { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string ModifiedBy { get; set; }
     }
 }

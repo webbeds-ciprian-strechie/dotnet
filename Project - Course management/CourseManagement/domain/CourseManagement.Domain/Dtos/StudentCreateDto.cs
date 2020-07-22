@@ -23,5 +23,6 @@ namespace CourseManagement.Domain.Dtos
 
         [Required]
         public DateTime EnrollmentDate { get; set; }
+
     }
 }

@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using CourseManagement.Domain.Entities;
 using CourseManagement.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using CourseManagement.Infrastructure.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using CourseManagement.Domain.Dtos;
 
 namespace CourseManagement.Api.Controllers
 {
@@ -17,22 +22,25 @@ namespace CourseManagement.Api.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
-        public CoursesController(ApiDbContext context)
+        private readonly IMemoryCache memoryCache;
+        public CoursesController(ApiDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            this.memoryCache = memoryCache;
         }
 
         // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
+        public async Task<ActionResult<IEnumerable<CourseCreateDto>>> GetCourses()
         {
-            return await _context.Courses.ToListAsync();
+            var courses = await _context.Courses.ToListAsync();
+            var result = courses.Select(x => x.MapToCourseGetDto());
+            return Ok(result);
         }
 
         // GET: api/Courses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(int id)
+        public async Task<ActionResult<CourseCreateDto>> GetCourse(int id)
         {
             var course = await _context.Courses.FindAsync(id);
 
@@ -41,18 +49,21 @@ namespace CourseManagement.Api.Controllers
                 return NotFound();
             }
 
-            return course;
+            return course.MapToCourseGetDto();
         }
 
         // PUT: api/Courses/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourse(int id, Course course)
+        public async Task<IActionResult> PutCourse(int id, CourseCreateDto course, [FromHeader(Name = "if-match")][Required] string eTag, CancellationToken cancellationToken)
         {
             if (id != course.Id)
             {
                 return BadRequest();
+            }
+
+            if (eTag != course.GetEtag())
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed, "Invalid Etag");
             }
 
             _context.Entry(course).State = EntityState.Modified;
@@ -60,6 +71,9 @@ namespace CourseManagement.Api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var cts = new CancellationTokenSource();
+                this.memoryCache.Set($"_CS{course.Id}", cts);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,12 +91,10 @@ namespace CourseManagement.Api.Controllers
         }
 
         // POST: api/Courses
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
+        public async Task<ActionResult<CourseCreateDto>> PostCourse(CourseCreateDto course)
         {
-            _context.Courses.Add(course);
+            _context.Courses.Add(course.MapAsNewEntity());
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCourse", new { id = course.Id }, course);
@@ -90,7 +102,7 @@ namespace CourseManagement.Api.Controllers
 
         // DELETE: api/Courses/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Course>> DeleteCourse(int id)
+        public async Task<ActionResult<CourseCreateDto>> DeleteCourse(int id)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
@@ -101,7 +113,11 @@ namespace CourseManagement.Api.Controllers
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
 
-            return course;
+            var cts = this.memoryCache.Get<CancellationTokenSource>($"_CS{id}");
+            cts?.Cancel();
+
+            var result = course.MapToCourseGetDto();
+            return result;
         }
 
         private bool CourseExists(int id)

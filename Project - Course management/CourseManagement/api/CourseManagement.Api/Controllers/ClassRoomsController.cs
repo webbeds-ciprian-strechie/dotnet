@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using CourseManagement.Domain.Entities;
 using CourseManagement.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using CourseManagement.Infrastructure.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using CourseManagement.Domain.Dtos;
 
 namespace CourseManagement.Api.Controllers
 {
@@ -17,42 +22,49 @@ namespace CourseManagement.Api.Controllers
     public class ClassRoomsController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
-        public ClassRoomsController(ApiDbContext context)
+        private readonly IMemoryCache memoryCache;
+        public ClassRoomsController(ApiDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            this.memoryCache = memoryCache;
         }
 
         // GET: api/ClassRooms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClassRoom>>> GetClassRooms()
+        public async Task<ActionResult<IEnumerable<ClassRoomCreateDto>>> GetClassRooms()
         {
-            return await _context.ClassRooms.ToListAsync();
+            var classRooms = await _context.ClassRooms.ToListAsync();
+            var result = classRooms.Select(x => x.MapToClassRoomCreateDto());
+            return Ok(result);
         }
 
         // GET: api/ClassRooms/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ClassRoom>> GetClassRoom(int id)
+        public async Task<ActionResult<ClassRoomCreateDto>> GetClassRoom(int id)
         {
             var classRoom = await _context.ClassRooms.FindAsync(id);
+            var result = classRoom.MapToClassRoomCreateDto();
 
-            if (classRoom == null)
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return classRoom;
+            return result;
         }
 
         // PUT: api/ClassRooms/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClassRoom(int id, ClassRoom classRoom)
+        public async Task<IActionResult> PutClassRoom(int id, ClassRoomCreateDto classRoom, [FromHeader(Name = "if-match")][Required] string eTag, CancellationToken cancellationToken)
         {
             if (id != classRoom.Id)
             {
                 return BadRequest();
+            }
+
+            if (eTag != classRoom.GetEtag())
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed, "Invalid Etag");
             }
 
             _context.Entry(classRoom).State = EntityState.Modified;
@@ -60,6 +72,9 @@ namespace CourseManagement.Api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var cts = new CancellationTokenSource();
+                this.memoryCache.Set($"_CR{classRoom.Id}", cts);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,20 +92,21 @@ namespace CourseManagement.Api.Controllers
         }
 
         // POST: api/ClassRooms
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<ClassRoom>> PostClassRoom(ClassRoom classRoom)
+        public async Task<ActionResult<ClassRoomCreateDto>> PostClassRoom(ClassRoomCreateDto classRoom)
         {
-            _context.ClassRooms.Add(classRoom);
+            _context.ClassRooms.Add(classRoom.MapAsNewEntity());
             await _context.SaveChangesAsync();
+
+            var cts = new CancellationTokenSource();
+            this.memoryCache.Set($"_CLS{classRoom.Id}", classRoom);
 
             return CreatedAtAction("GetClassRoom", new { id = classRoom.Id }, classRoom);
         }
 
         // DELETE: api/ClassRooms/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ClassRoom>> DeleteClassRoom(int id)
+        public async Task<ActionResult<ClassRoomCreateDto>> DeleteClassRoom(int id)
         {
             var classRoom = await _context.ClassRooms.FindAsync(id);
             if (classRoom == null)
@@ -100,12 +116,17 @@ namespace CourseManagement.Api.Controllers
 
             _context.ClassRooms.Remove(classRoom);
             await _context.SaveChangesAsync();
+            var result = classRoom.MapToClassRoomCreateDto();
 
-            return classRoom;
+            var cts = this.memoryCache.Get<CancellationTokenSource>($"_CLS{id}");
+            cts?.Cancel();
+
+            return result;
         }
 
         private bool ClassRoomExists(int id)
         {
+
             return _context.ClassRooms.Any(e => e.Id == id);
         }
     }

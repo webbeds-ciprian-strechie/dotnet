@@ -13,6 +13,7 @@ using CourseManagement.Infrastructure.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,11 +26,12 @@ namespace CourseManagement.Api.Controllers
     {
         private readonly ITeacherService _teacherService;
         private readonly ILogger<TeacherController> _logger;
-
-        public TeacherController(ITeacherService teacherService, ILogger<TeacherController> logger)
+        private readonly IMemoryCache memoryCache;
+        public TeacherController(ITeacherService teacherService, ILogger<TeacherController> logger, IMemoryCache memoryCache)
         {
             _teacherService = teacherService;
             _logger = logger;
+            this.memoryCache = memoryCache;
         }
 
         // GET: api/<controller>
@@ -77,6 +79,10 @@ namespace CourseManagement.Api.Controllers
 
             var teacher = teacherCreateDto.MapToTeacher(modifiedBy);
             var createdTeacherGetDto = (await _teacherService.Create(teacher).ConfigureAwait(false)).MapToTeacherGetDto();
+
+
+            var cts = new CancellationTokenSource();
+            this.memoryCache.Set($"TCH{createdTeacherGetDto.Id}", cts);
 
             _logger.LogInformation($"New teacher was created: {createdTeacherGetDto.Id}");
 
@@ -151,6 +157,9 @@ namespace CourseManagement.Api.Controllers
             await _teacherService.Delete(id).ConfigureAwait(false);
 
             var result = teacher.MapToTeacherGetDto();
+
+            var cts = this.memoryCache.Get<CancellationTokenSource>($"STUD{id}");
+            cts?.Cancel();
 
             return Ok(result);
         }

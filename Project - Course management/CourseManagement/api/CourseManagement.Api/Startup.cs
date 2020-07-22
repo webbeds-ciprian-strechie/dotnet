@@ -88,6 +88,10 @@ namespace CourseManagement.Api
                 };
             });
 
+            services.AddResponseCaching();
+
+            services.AddMemoryCache();
+
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();
         }
@@ -103,6 +107,8 @@ namespace CourseManagement.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseResponseCaching();
 
             app.UseRouting();
 

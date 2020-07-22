@@ -1,27 +1,22 @@
-﻿using System;
+﻿using CourseManagement.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace CourseManagement.Domain.Dtos
 {
-    public class ClassRoomCreateDto
+    public class ClassRoomCreateDto : IAuditable
     {
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string FirstName { get; set; }
+        public string Name { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string LasttName { get; set; }
+        public int CourseID { get; set; }
 
-        [Required]
-        [StringLength(13)]
-        public DateTime CNP { get; set; }
-
-        [Required]
-        public DateTime EnrollmentDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string ModifiedBy { get; set; }
     }
 }

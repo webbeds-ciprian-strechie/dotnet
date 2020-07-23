@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseManagement.Application", "application\CourseManagement.Application\CourseManagement.Application.csproj", "{BCB8A10F-817F-4A1C-948B-DCFC1E568CFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseManagement.Application", "application\CourseManagement.Application\CourseManagement.Application.csproj", "{BCB8A10F-817F-4A1C-948B-DCFC1E568CFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseManagement.Domain", "domain\CourseManagement.Domain\CourseManagement.Domain.csproj", "{CE9C047A-9031-473E-9DFD-B85A34656AC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseManagement.Domain", "domain\CourseManagement.Domain\CourseManagement.Domain.csproj", "{CE9C047A-9031-473E-9DFD-B85A34656AC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseManagement.Infrastructure", "infrastructure\CourseManagement.Infrastructure\CourseManagement.Infrastructure.csproj", "{4C79A39A-733C-44DD-8097-F4EC5753514B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseManagement.Infrastructure", "infrastructure\CourseManagement.Infrastructure\CourseManagement.Infrastructure.csproj", "{4C79A39A-733C-44DD-8097-F4EC5753514B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseManagement.Api", "api\CourseManagement.Api\CourseManagement.Api.csproj", "{622609F8-31F0-4E49-B668-DC7DBBD2BBE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{7F0323E0-5156-4445-B51B-4A6B9F888D26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{622609F8-31F0-4E49-B668-DC7DBBD2BBE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{622609F8-31F0-4E49-B668-DC7DBBD2BBE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{622609F8-31F0-4E49-B668-DC7DBBD2BBE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F0323E0-5156-4445-B51B-4A6B9F888D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F0323E0-5156-4445-B51B-4A6B9F888D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F0323E0-5156-4445-B51B-4A6B9F888D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F0323E0-5156-4445-B51B-4A6B9F888D26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

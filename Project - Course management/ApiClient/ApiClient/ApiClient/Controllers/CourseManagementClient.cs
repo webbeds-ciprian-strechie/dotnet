@@ -29,7 +29,7 @@ namespace ApiClient.Controllers
             var client = this.factory.CreateClient("course");
 
             //Authenticate
-            var json = JsonConvert.SerializeObject(new { username = "test", password = "test"});
+            var json = JsonConvert.SerializeObject(new { username = "test", password = "test" });
 
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 

@@ -41,8 +41,8 @@ namespace ApiClient
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             })
-            .AddHttpMessageHandler<RetryPolicyDelegatingHandler>() 
-            .AddHttpMessageHandler<LoggingDelegatingHandler>(); 
+            .AddHttpMessageHandler<RetryPolicyDelegatingHandler>()
+            .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
             services.AddSwaggerGen(c =>
             {
